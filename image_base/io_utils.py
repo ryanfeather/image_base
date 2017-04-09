@@ -1,0 +1,89 @@
+import cv2
+from keras.backend import backend
+import subprocess
+import os
+import numpy as np
+import pickle
+
+BACKEND = 'th' if backend()=='theano' else 'tf'
+
+def git_hash():
+    return subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD']).decode('utf-8').strip()
+
+def cv2k(image, single_dim_im=False):
+
+    image_size = image.shape[-3:-1]
+    if single_dim_im:
+        new_shape = image.shape + (1,)
+        result = image.reshape(new_shape)
+    else:
+        result = image
+
+    long = len(image.shape) == 4
+
+    if BACKEND == 'th':
+        if long:
+            result = image.transpose((0,3,1,2))
+        else:
+            result = image.transpose((2,0,1))
+    else:
+        result = result
+
+    return result
+
+def k2cv(image, single_dim_im=False):
+    long = len(image.shape) == 4
+
+    if BACKEND == 'th':
+        if long:
+            result = image.transpose((0,2,3,1))
+        else:
+            result = image.transpose((1,2,0))
+
+    if single_dim_im:
+        result = result.reshape(result.shape[:-1])
+
+    return result
+
+
+def get_im_cv2(path, resolution, ratio=1):
+    img = cv2.imread(path)
+    if resolution is not None:
+        width = int(resolution*ratio)
+        resized = cv2.resize(img, (width, resolution), cv2.INTER_LINEAR)
+        return resized
+    else:
+        return img
+
+
+
+def save_models(models, info_string):
+
+    out_dir = os.path.join(data_base(), 'saved_models')
+    if not os.path.exists(out_dir):
+        os.makedirs(out_dir)
+
+    out_file = os.path.join(out_dir, info_string+'_mod_.pkl')
+    with open(out_file, 'wb') as dump_file:
+        pickle.dump(models, dump_file)
+
+def load_models(info_string):
+    out_dir = os.path.join(data_base(), 'saved_models')
+    out_file = os.path.join(out_dir, info_string+'_mod_.pkl')
+    with open(out_file, 'rb') as dump_file:
+        models = pickle.load(dump_file)
+    return models
+
+
+def save_data(data, info_string):
+    out_dir = os.path.join(data_base(), 'saved_data')
+    if not os.path.exists(out_dir):
+        os.makedirs(out_dir)
+
+    out_file = os.path.join(out_dir, info_string + '_dat')
+    np.save(out_file, data)
+
+def load_data(info_string):
+    out_dir = os.path.join(data_base(), 'saved_data')
+    out_file = os.path.join(out_dir, info_string+'_dat.npy')
+    return np.load(out_file)

@@ -1,0 +1,94 @@
+from joblib import Parallel, delayed
+
+import numpy as np
+from . import io_utils
+
+def extract_patches(img, tilesize, steps_per):
+    #ch ro co
+    step_size = int(tilesize/steps_per)
+
+    rows, cols = img.shape[1:]
+    if io_utils.BACKEND != 'th':
+        img = img.transpose(2,0,1)
+
+    y_coords = list(range(0, rows, step_size))
+    x_coords = list(range(0, cols, step_size))
+    patches = []
+    for ind_y in range(len(y_coords) - steps_per):
+        y0 = y_coords[ind_y]
+        y1 = y_coords[ind_y + steps_per]
+        for ind_x in range(len(x_coords) - steps_per):
+            x0 = x_coords[ind_x]
+            x1 = x_coords[ind_x + steps_per]
+            patches.append(img[:, y0:y1, x0:x1])
+
+    if rows % tilesize > 0:
+        y0 = rows - tilesize
+        y1 = rows
+        for ind_x in range(len(x_coords) - steps_per):
+            x0 = x_coords[ind_x]
+            x1 = x_coords[ind_x + steps_per]
+            patches.append(img[ :, y0:y1, x0:x1])
+
+    if cols % tilesize > 0:
+        x0 = cols - tilesize
+        x1 = cols
+        for ind_y in range(len(y_coords) - steps_per):
+            y0 = y_coords[ind_y]
+            y1 = y_coords[ind_y + steps_per]
+            patches.append(img[:, :, y0:y1, x0:x1])
+
+    patches = [patch.reshape(1,-1,rows,cols) for patch in patches]
+
+    if io_utils.BACKEND != 'th':
+        patches = [patch.transpose(0, 2, 3, 1) for patch in patches]
+
+    return np.concatenate(patches)
+
+
+def blockshaped(arr, tilesize, flat=False, steps_per=2, n_jobs=3):
+
+    tiles = Parallel(n_jobs=n_jobs)(delayed(extract_patches)(arr[ind],tilesize, steps_per) for ind in range(arr.shape[0]))
+    tiles = np.concatenate(tiles, axis=0)
+    if flat:
+        tiles = np.reshape(tiles, (len(tiles),-1))
+    return tiles
+
+def tile_targets(tile, n_dim=4):
+    tilesize = int(tile.shape[2]/n_dim)
+    extracted = extract_patches(tile, tilesize, steps_per=1)
+    targets = extracted.reshape(1, n_dim**2,-1).mean(axis=2)
+    return targets
+
+
+def blockshapedy_repeat(arr,y, tilesize, steps_per=2, n_jobs=3):
+    nper = extract_patches(arr[0], tilesize, steps_per).shape[0]
+
+    tiles = Parallel(n_jobs=n_jobs)(delayed(extract_patches)(arr[ind], tilesize, steps_per) for ind in range(arr.shape[0]))
+    tiles = np.concatenate(tiles, axis=0)
+    y_rep = np.repeat(y, nper, axis=0)
+    return tiles, y_rep
+
+def blockshapedy_transform(tiles, y_rep, n_dim=4, zeroind=4, n_jobs=3):
+
+    targets = Parallel(n_jobs=n_jobs)(delayed(tile_targets)(tile, n_dim=n_dim) for tile in tiles)
+
+    yperc = np.concatenate(targets, axis=0)
+
+    #yperc = np.reshape(tiles, (len(tiles),-1)).mean(axis=1).reshape(-1,1)
+    yperc2 = np.repeat(yperc.mean(axis=1).reshape((-1,1)), y_rep.shape[1],axis=1)*y_rep>0.1
+    mask = np.zeros((yperc2.shape[1],), dtype=bool)
+    mask[zeroind] = True
+    yperc2[:, mask] = ~(np.any(yperc2[:, ~mask], axis=1).reshape((-1,1)))
+    return yperc, yperc2
+
+
+def blockshapedy(arr, y, tilesize, zeroind=4, steps_per=2, return_class=False, n_dim=4):
+
+    tiles,y_rep = blockshapedy_repeat(arr, y, tilesize, steps_per=steps_per)
+    yperc, yperc2 =  blockshapedy_transform(tiles, y_rep, n_dim=n_dim, zeroind=zeroind)
+    #yperc = np.reshape(tiles, (len(tiles),-1)).mean(axis=1).reshape(-1,1)
+    if return_class:
+        return yperc, yperc2
+    else:
+        return yperc
