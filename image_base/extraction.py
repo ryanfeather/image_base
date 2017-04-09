@@ -14,9 +14,9 @@ def extract_patches(img, tilesize, steps_per, return_coords=False):
         else:
             img = img.reshape(img_shape + (1,))
 
-    rows, cols = img.shape[1:]
     if io_utils.BACKEND != 'th':
         img = img.transpose(2,0,1)
+    rows, cols = img.shape[1:]
 
     y_coords = list(range(0, rows, step_size))
     x_coords = list(range(0, cols, step_size))
