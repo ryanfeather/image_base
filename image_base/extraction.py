@@ -52,6 +52,7 @@ def extract_patches(img, tilesize, steps_per, return_coords=False):
     patches = [patch.reshape(1,-1,rows,cols) for patch in patches]
 
     if io_utils.BACKEND != 'th':
+        print(patches[0].shape)
         patches = [patch.transpose(0, 2, 3, 1) for patch in patches]
 
     patches = np.concatenate(patches)
