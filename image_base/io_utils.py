@@ -73,7 +73,7 @@ def get_im_cv2(path, resolution=None, ratio=1):
 
 def load_file(fl, resolution=None):
     flbase = os.path.basename(fl)
-    img = get_im_cv2(fl, resolution)
+    img = get_im_cv2(fl, resolution).astype(np.float32)
     return img, flbase
 
 
