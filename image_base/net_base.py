@@ -29,17 +29,17 @@ class Pretrained():
         self.model = make_keras_pretrained(inputs, model_class, weights=weights, lock=lock)
         self.preprocessor = preprocessing
 
-class PreInceptionV3:
+class PreInceptionV3(Pretrained):
     def __init__(self, inputs, weights='imagenet', lock=True):
-        super().__init__(inputs, InceptionV3, weights=weights, lock=lock, preprocessing=preprocess_scale)
+        super(PreInceptionV3).__init__(inputs, InceptionV3, weights=weights, lock=lock, preprocessing=preprocess_scale)
 
-class PreResNet50:
+class PreResNet50(Pretrained):
     def __init__(self, inputs, weights='imagenet', lock=True):
-        super().__init__(inputs, ResNet50, weights=weights, lock=lock)
+        super(PreResNet50).__init__(inputs, ResNet50, weights=weights, lock=lock)
 
-class PreVGG19:
+class PreVGG19(Pretrained):
     def __init__(self, inputs, weights='imagenet', lock=True):
-        super().__init__(inputs, VGG19, weights=weights, lock=lock)
+        super(PreVGG19).__init__(inputs, VGG19, weights=weights, lock=lock)
 
 def make_trainable(model):
     for layer in model.layers:
