@@ -7,6 +7,12 @@ from . import io_utils
 def extract_patches(img, tilesize, steps_per, return_coords=False):
     #ch ro co
     step_size = int(tilesize/steps_per)
+    img_shape = img.shape
+    if len(img_shape) == 2:
+        if io_utils.BACKEND == 'th':
+            img = img.reshape((1,) + img_shape)
+        else:
+            img = img.reshape(img_shape + (1,))
 
     rows, cols = img.shape[1:]
     if io_utils.BACKEND != 'th':
@@ -49,6 +55,8 @@ def extract_patches(img, tilesize, steps_per, return_coords=False):
         patches = [patch.transpose(0, 2, 3, 1) for patch in patches]
 
     patches = np.concatenate(patches)
+    if len(img_shape)==2:
+        patches = patches.reshape((-1,tilesize,tilesize))
     if return_coords:
         return patches, coords
     else:
@@ -104,8 +112,11 @@ def blockshapedy(arr, y, tilesize, zeroind=4, steps_per=2, return_class=False, n
 
 
 def blockshaped_location(arr,tilesize,steps_per=2, n_dim=4, n_jobs=3):
+
     tiles =blockshaped_location_target(arr, tilesize, steps_per=steps_per, n_jobs=n_jobs)
-    return blockshaped_location_transform(tiles, n_dim=n_dim, n_jobs=n_jobs)
+    out_tiles =  blockshaped_location_transform(tiles, n_dim=n_dim, n_jobs=n_jobs)
+
+    return out_tiles
 
 def blockshaped_location_target(arr, tilesize, steps_per=2, n_jobs=3):
     tiles = Parallel(n_jobs=n_jobs)(
