@@ -119,8 +119,10 @@ def blockshaped_location(arr,tilesize,steps_per=2, n_dim=4, n_jobs=3):
     return out_tiles
 
 def blockshaped_location_target(arr, tilesize, steps_per=2, n_jobs=3):
-    tiles = Parallel(n_jobs=n_jobs)(
-        delayed(extract_patches)(arr[ind], tilesize, steps_per) for ind in range(len(arr)))
+    #tiles = Parallel(n_jobs=n_jobs)(
+    #    delayed(extract_patches)(arr[ind], tilesize, steps_per) for ind in range(len(arr)))
+    tiles = [extract_patches(arr[ind], tilesize, steps_per) for ind in range(len(arr))]
+
     tiles = np.concatenate(tiles, axis=0)
     return tiles
 
