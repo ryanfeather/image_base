@@ -31,15 +31,15 @@ class Pretrained():
 
 class PreInceptionV3(Pretrained):
     def __init__(self, inputs, weights='imagenet', lock=True):
-        super(PreInceptionV3).__init__(inputs, InceptionV3, weights=weights, lock=lock, preprocessing=preprocess_scale)
+        super(PreInceptionV3, self).__init__(inputs, InceptionV3, weights=weights, lock=lock, preprocessing=preprocess_scale)
 
 class PreResNet50(Pretrained):
     def __init__(self, inputs, weights='imagenet', lock=True):
-        super(PreResNet50).__init__(inputs, ResNet50, weights=weights, lock=lock)
+        super(PreResNet50, self).__init__(inputs, ResNet50, weights=weights, lock=lock)
 
 class PreVGG19(Pretrained):
     def __init__(self, inputs, weights='imagenet', lock=True):
-        super(PreVGG19).__init__(inputs, VGG19, weights=weights, lock=lock)
+        super(PreVGG19,self).__init__(inputs, VGG19, weights=weights, lock=lock)
 
 def make_trainable(model):
     for layer in model.layers:
