@@ -57,7 +57,7 @@ def extract_patches(img, tilesize, steps_per, return_coords=False):
 
 def blockshaped(arr, tilesize, flat=False, steps_per=2, n_jobs=3):
 
-    tiles = Parallel(n_jobs=n_jobs)(delayed(extract_patches)(arr[ind],tilesize, steps_per) for ind in range(arr.shape[0]))
+    tiles = Parallel(n_jobs=n_jobs)(delayed(extract_patches)(arr[ind],tilesize, steps_per) for ind in range(len(arr)))
     tiles = np.concatenate(tiles, axis=0)
     if flat:
         tiles = np.reshape(tiles, (len(tiles),-1))
@@ -73,7 +73,7 @@ def tile_targets(tile, n_dim=4):
 def blockshapedy_repeat(arr,y, tilesize, steps_per=2, n_jobs=3):
     nper = extract_patches(arr[0], tilesize, steps_per).shape[0]
 
-    tiles = Parallel(n_jobs=n_jobs)(delayed(extract_patches)(arr[ind], tilesize, steps_per) for ind in range(arr.shape[0]))
+    tiles = Parallel(n_jobs=n_jobs)(delayed(extract_patches)(arr[ind], tilesize, steps_per) for ind in range(len(arr)))
     tiles = np.concatenate(tiles, axis=0)
     y_rep = np.repeat(y, nper, axis=0)
     return tiles, y_rep
@@ -109,7 +109,7 @@ def blockshaped_location(arr,tilesize,steps_per=2, n_dim=4, n_jobs=3):
 
 def blockshaped_location_target(arr, tilesize, steps_per=2, n_jobs=3):
     tiles = Parallel(n_jobs=n_jobs)(
-        delayed(extract_patches)(arr[ind], tilesize, steps_per) for ind in range(arr.shape[0]))
+        delayed(extract_patches)(arr[ind], tilesize, steps_per) for ind in range(len(arr)))
     tiles = np.concatenate(tiles, axis=0)
     return tiles
 
