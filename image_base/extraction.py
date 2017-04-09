@@ -128,7 +128,8 @@ def blockshaped_location_target(arr, tilesize, steps_per=2, n_jobs=3):
 
 def blockshaped_location_transform(tiles, n_dim=4, n_jobs=3):
 
-    targets = Parallel(n_jobs=n_jobs)(delayed(tile_targets)(tile, n_dim=n_dim) for tile in tiles)
+    #targets = Parallel(n_jobs=n_jobs)(delayed(tile_targets)(tile, n_dim=n_dim) for tile in tiles)
+    targets = [tile_targets(tile, n_dim=n_dim) for tile in tiles]
 
     yperc = np.concatenate(targets, axis=0)
     return yperc
