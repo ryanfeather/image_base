@@ -7,6 +7,21 @@ import pickle
 
 BACKEND = 'th' if backend()=='theano' else 'tf'
 
+_data_folder = None
+
+def set_data_base(base):
+    global _data_folder
+    _data_folder = base
+
+def data_base(sub_path=None):
+    if _data_folder is None:
+        raise NotADirectoryError('data base is None, please set a valid directory with set_data_base')
+    if sub_path is None:
+        return _data_folder
+    else:
+        return os.path.join(_data_folder, sub_path)
+
+
 def git_hash():
     return subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD']).decode('utf-8').strip()
 
