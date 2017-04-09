@@ -46,7 +46,7 @@ def extract_patches(img, tilesize, steps_per, return_coords=False):
         for ind_y in range(len(y_coords) - steps_per):
             y0 = y_coords[ind_y]
             y1 = y_coords[ind_y + steps_per]
-            patches.append(img[:, :, y0:y1, x0:x1])
+            patches.append(img[:, y0:y1, x0:x1])
             coords.append((y0, x0))
 
     patches = [patch.reshape(1,-1,tilesize,tilesize) for patch in patches]
