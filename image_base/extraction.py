@@ -3,6 +3,7 @@ from joblib import Parallel, delayed
 import numpy as np
 from . import io_utils
 
+
 def extract_patches(img, tilesize, steps_per, return_coords=False):
     #ch ro co
     step_size = int(tilesize/steps_per)
@@ -126,3 +127,33 @@ class BlockShapedLocationTransform(object):
 
     def __call__(self, y_vals):
         return blockshaped_location_transform(y_vals,n_dim=self.n_dim)
+
+
+def reconstruct_patches(patches, coords, shape, tilesize, flat=False):
+    if flat:
+        if io_utils.BACKEND=='th':
+            patches = patches.reshape((-1, 1,tilesize,tilesize))
+        else:
+            patches = patches.reshape((-1,tilesize, tilesize, 1))
+
+    if io_utils.BACKEND=='th':
+        dim = patches.shape[1]
+        out = np.zeros((dim,)+shape)
+        out_count = np.zeros((dim,) +shape)
+    else:
+        dim = patches.shape[-1]
+        out = np.zeros(shape+ (dim,))
+        out_count = np.zeros(shape+(dim,))
+
+    row_offset = 0
+    for coord, patch in zip(coords, patches):
+        row_start, col_start = coord
+        if io_utils.BACKEND == 'th':
+            out[:,row_start:row_start+tilesize,col_start:col_start+tilesize] += patches[row*nper[1]+col]
+            out_count[:,row_start:row_start+tilesize,col_start:col_start+tilesize] +=1
+        else:
+            out[row_start:row_start + tilesize, col_start:col_start + tilesize, :] += patches[row * nper[1] + col]
+            out_count[row_start:row_start + tilesize, col_start:col_start + tilesize, :] += 1
+
+
+    return out/out_count

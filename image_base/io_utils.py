@@ -61,7 +61,7 @@ def k2cv(image, single_dim_im=False):
     return result
 
 
-def get_im_cv2(path, resolution, ratio=1):
+def get_im_cv2(path, resolution=None, ratio=1):
     img = cv2.imread(path)
     if resolution is not None:
         width = int(resolution*ratio)
@@ -70,6 +70,11 @@ def get_im_cv2(path, resolution, ratio=1):
     else:
         return img
 
+
+def load_file(fl, resolution=None):
+    flbase = os.path.basename(fl)
+    img = get_im_cv2(fl, resolution)
+    return img, flbase
 
 
 def save_models(models, info_string):
