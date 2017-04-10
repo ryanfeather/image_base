@@ -60,8 +60,8 @@ def make_small_vgg19(inputs, dim1=64):
     x = Conv2D(dim1*8, 3,3, activation='relu', border_mode='same', name='block5_conv3')(x)
     x = Conv2D(dim1*8, 3,3, activation='relu', border_mode='same', name='block5_conv4')(x)
     x = MaxPooling2D((2, 2), strides=(2, 2), name='block5_pool')(x)
-    model = Model(inputs, x, name='vgg19')
-    return model
+
+    return x
 
 class Architecture():
 
