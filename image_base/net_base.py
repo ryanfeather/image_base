@@ -35,7 +35,7 @@ class Pretrained(Architecture):
     def __init__(self,inputs, model_class, weights='imagenet', lock=True, preprocessing=preprocess_center):
         def make_func(inputs_in):
             return  make_keras_pretrained(inputs_in, model_class, weights=weights, lock=lock)
-        super(Pretrained, self).__init_(inputs, make_func, preprocessing=preprocessing)
+        super(Pretrained, self).__init__(inputs, make_func, preprocessing=preprocessing)
 
 class PreInceptionV3(Pretrained):
     def __init__(self, inputs, weights='imagenet', lock=True):
