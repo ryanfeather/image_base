@@ -7,7 +7,8 @@ from keras.applications.vgg19 import VGG19
 from keras.applications.resnet50 import ResNet50
 import numpy as np
 from keras.callbacks import EarlyStopping, LearningRateScheduler, ModelCheckpoint
-from keras.models import load_model
+from keras.models import load_model, Model
+from keras.layers import Conv2D, MaxPooling2D
 
 import sys
 sys.setrecursionlimit(20000) # needed for compiling/saving some keras models
@@ -22,6 +23,45 @@ def make_keras_pretrained(inputs, model_class, weights='imagenet', lock=True):
 
     logging.info('{0} output shape {1:}'.format(model_class, model.output_shape))
     return model.output
+
+def make_small_vgg19(inputs, dim1=64):
+    """ Make a configurable top vgg-19 like architecture
+
+    :param inputs:
+    :param dim1:
+    :return:
+    """
+    x = Conv2D(dim1, (3, 3), activation='relu', padding='same', name='block1_conv1')(inputs)
+    x = Conv2D(dim1, (3, 3), activation='relu', padding='same', name='block1_conv2')(x)
+    x = MaxPooling2D((2, 2), strides=(2, 2), name='block1_pool')(x)
+
+    # Block 2
+    x = Conv2D(dim1*2, (3, 3), activation='relu', padding='same', name='block2_conv1')(x)
+    x = Conv2D(dim1*2, (3, 3), activation='relu', padding='same', name='block2_conv2')(x)
+    x = MaxPooling2D((2, 2), strides=(2, 2), name='block2_pool')(x)
+
+    # Block 3
+    x = Conv2D(dim1*4, (3, 3), activation='relu', padding='same', name='block3_conv1')(x)
+    x = Conv2D(dim1*4, (3, 3), activation='relu', padding='same', name='block3_conv2')(x)
+    x = Conv2D(dim1*4, (3, 3), activation='relu', padding='same', name='block3_conv3')(x)
+    x = Conv2D(dim1*4, (3, 3), activation='relu', padding='same', name='block3_conv4')(x)
+    x = MaxPooling2D((2, 2), strides=(2, 2), name='block3_pool')(x)
+
+    # Block 4
+    x = Conv2D(dim1*8, (3, 3), activation='relu', padding='same', name='block4_conv1')(x)
+    x = Conv2D(dim1*8, (3, 3), activation='relu', padding='same', name='block4_conv2')(x)
+    x = Conv2D(dim1*8, (3, 3), activation='relu', padding='same', name='block4_conv3')(x)
+    x = Conv2D(dim1*8, (3, 3), activation='relu', padding='same', name='block4_conv4')(x)
+    x = MaxPooling2D((2, 2), strides=(2, 2), name='block4_pool')(x)
+
+    # Block 5
+    x = Conv2D(dim1*8, (3, 3), activation='relu', padding='same', name='block5_conv1')(x)
+    x = Conv2D(dim1*8, (3, 3), activation='relu', padding='same', name='block5_conv2')(x)
+    x = Conv2D(dim1*8, (3, 3), activation='relu', padding='same', name='block5_conv3')(x)
+    x = Conv2D(dim1*8, (3, 3), activation='relu', padding='same', name='block5_conv4')(x)
+    x = MaxPooling2D((2, 2), strides=(2, 2), name='block5_pool')(x)
+    model = Model(inputs, x, name='vgg19')
+    return model
 
 class Architecture():
 
