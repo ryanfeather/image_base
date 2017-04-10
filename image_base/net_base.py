@@ -23,7 +23,12 @@ def make_keras_pretrained(inputs, model_class, weights='imagenet', lock=True):
     logging.info('{0} output shape {1:}'.format(model_class, model.output_shape))
     return model.output
 
-class Pretrained():
+class Architecture():
+
+    def __init__(self):
+        pass
+
+class Pretrained:
 
     def __init__(self,inputs, model_class, weights='imagenet', lock=True, preprocessing=preprocess_center):
         self.model = make_keras_pretrained(inputs, model_class, weights=weights, lock=lock)

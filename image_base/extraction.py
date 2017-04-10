@@ -163,10 +163,10 @@ def reconstruct_patches(patches, coords, shape, tilesize, flat=False):
     for coord, patch in zip(coords, patches):
         row_start, col_start = coord
         if io_utils.BACKEND == 'th':
-            out[:,row_start:row_start+tilesize,col_start:col_start+tilesize] += patches[row*nper[1]+col]
+            out[:,row_start:row_start+tilesize,col_start:col_start+tilesize] += patch
             out_count[:,row_start:row_start+tilesize,col_start:col_start+tilesize] +=1
         else:
-            out[row_start:row_start + tilesize, col_start:col_start + tilesize, :] += patches[row * nper[1] + col]
+            out[row_start:row_start + tilesize, col_start:col_start + tilesize, :] += patch
             out_count[row_start:row_start + tilesize, col_start:col_start + tilesize, :] += 1
 
 
