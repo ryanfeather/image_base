@@ -18,8 +18,8 @@ def extract_patches(img, tilesize, steps_per, return_coords=False):
         img = img.transpose(2,0,1)
     rows, cols = img.shape[1:]
 
-    y_coords = list(range(0, rows, step_size))
-    x_coords = list(range(0, cols, step_size))
+    y_coords = list(range(0, rows-step_size+1, step_size))
+    x_coords = list(range(0, cols-step_size+1, step_size))
     patches = []
     coords = []
     for ind_y in range(len(y_coords) - steps_per):
