@@ -73,11 +73,11 @@ def blockshaped(arr, tilesize, flat=False, steps_per=2, n_jobs=3):
 
 def tile_targets(tile, n_dim=4):
     tilesize = int(tile.shape[-1]/n_dim)
-    print(tile.shape)
+    #print(tile.shape)
     extracted = extract_patches(tile, tilesize, steps_per=1)
-    print(extracted.shape)
-    print(n_dim)
-    print(tilesize)
+    #print(extracted.shape)
+    #print(n_dim)
+    #print(tilesize)
     targets = extracted.reshape(1, n_dim**2,-1).mean(axis=2)
     return targets
 
