@@ -1,6 +1,6 @@
 import numpy as np
 
-def is_mx(image):                                     
+def is_local_max(image):
    a = image > np.roll(image,1,1)
    b = image > np.roll(image,-1, 1)
    c = image > np.roll(image,1,0)
