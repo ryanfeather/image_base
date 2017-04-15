@@ -61,19 +61,23 @@ def k2cv(image, single_dim_im=False):
     return result
 
 
-def get_im_cv2(path, resolution=None, ratio=1):
+def get_im_cv2(path, resolution=None, ratio=1,size=None):
     img = cv2.imread(path)
-    if resolution is not None:
-        width = int(resolution*ratio)
-        resized = cv2.resize(img, (width, resolution), cv2.INTER_LINEAR)
+    if resolution is not None or size is not None:
+        if resolution is not None:
+
+            width = int(resolution*ratio)
+            size = (width, resolution)
+
+        resized = cv2.resize(img, size, cv2.INTER_LINEAR)
         return resized
     else:
         return img
 
 
-def load_file(fl, resolution=None):
+def load_file(fl, resolution=None, size=None):
     flbase = os.path.basename(fl)
-    img = get_im_cv2(fl, resolution).astype(np.float32)
+    img = get_im_cv2(fl, resolution=resolution, size=size).astype(np.float32)
     return img, flbase
 
 
