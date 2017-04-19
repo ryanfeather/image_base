@@ -2,7 +2,7 @@
 
 """
 from keras.preprocessing.image import Iterator, ImageDataGenerator, NumpyArrayIterator, array_to_img, transform_matrix_offset_center, apply_transform, random_channel_shift, flip_axis
-
+import os
 import numpy as np
 
 class XOnlyImageDataGenerator(ImageDataGenerator):
@@ -243,8 +243,8 @@ class MultiXYNumpyArrayIterator(Iterator):
 
         else:
             batch_y_out = batch_y
-            if self.transfoms is not None:
-                batch_y_out = self.transfroms[0](batch_y_out)
+            if self.transforms is not None:
+                batch_y_out = self.transforms[0](batch_y_out)
         return batch_x,batch_y_out
 
 
@@ -528,7 +528,7 @@ class OmniNumpyArrayIterator(Iterator):
 
         if self.save_to_dir:#todo handle y
             for i in range(current_batch_size):
-                img = array_to_img(batch_x[i], self.dim_ordering, scale=True)
+                img = array_to_img(result_x[i], self.dim_ordering, scale=True)
                 fname = '{prefix}_{index}_{hash}.{format}'.format(prefix=self.save_prefix,
                                                                   index=current_index + i,
                                                                   hash=np.random.randint(1e4),
@@ -537,7 +537,7 @@ class OmniNumpyArrayIterator(Iterator):
 
         if self.y is not None:
 
-            if self.transfoms is not None:
+            if self.transforms is not None:
                 for y_i in range(len(y)):
                     result_y[y_i] = self.transforms[y_i](result_y[y_i])
         return result_x,result_y
