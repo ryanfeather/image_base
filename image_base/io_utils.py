@@ -108,8 +108,9 @@ def save_data(data, info_string, compress=True):
 
     out_file = os.path.join(out_dir, info_string + '_dat')
     if compress:
-        with gzip.GzipFile(out_file+'npy.gz', 'w') as fp:
-            np.save(fp, data)
+        fp =  gzip.GzipFile(out_file+'npy.gz', 'w')
+        np.save(fp, data)
+        fp.close()
     else:
         np.save(out_file, data)
 
@@ -117,7 +118,8 @@ def load_data(info_string, compressed=True):
     out_dir = os.path.join(data_base(), 'saved_data')
     out_file = os.path.join(out_dir, info_string+'_dat.npy')
     if compressed:
-        with gzip.GzipFile(out_file+'.gz', 'r') as fp:
-            return np.load(fp)
+        fp = gzip.GzipFile(out_file+'.gz', 'r')
+        result =  np.load(fp)
+        return result
     else:
         return np.load(out_file)
