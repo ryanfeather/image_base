@@ -5,6 +5,8 @@ import os
 import numpy as np
 import pickle
 
+import gzip
+
 BACKEND = 'th' if backend()=='theano' else 'tf'
 
 _data_folder = None
@@ -99,15 +101,23 @@ def load_models(info_string):
     return models
 
 
-def save_data(data, info_string):
+def save_data(data, info_string, compress=True):
     out_dir = os.path.join(data_base(), 'saved_data')
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
 
     out_file = os.path.join(out_dir, info_string + '_dat')
-    np.save(out_file, data)
+    if compress:
+        with gzip.GzipFile(out_file+'npy.gz', 'w') as fp:
+            np.save(fp, data)
+    else:
+        np.save(out_file, data)
 
-def load_data(info_string):
+def load_data(info_string, compressed=True):
     out_dir = os.path.join(data_base(), 'saved_data')
     out_file = os.path.join(out_dir, info_string+'_dat.npy')
-    return np.load(out_file)
+    if compressed:
+        with gzip.GzipFile(out_file+'.gz', 'r') as fp:
+            return np.load(fp)
+    else:
+        return np.load(out_file)
