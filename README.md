@@ -1,0 +1,2 @@
+This is a package of utilities that I've frequently found useful.  Nothing is particularly cutting edge, but some of the
+forms are convenient for me to use.  Nothing is really guaranteed to work, so it's best to use it mostly as a guide.
