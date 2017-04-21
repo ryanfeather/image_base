@@ -82,16 +82,17 @@ class Eater:
         self.n_jobs = n_jobs
         self.max_size = max_size
 
-    def apply(self, iterator):
         self.writeto = Queue()
-        processes = [Process(target=TargetWrapper(self.worker, self.writeto, returns=False), name='EaterPool {0}'.format(i)) for i in range(self.n_jobs)]
-        for process in processes:
+        self.processes = [Process(target=TargetWrapper(self.worker, self.writeto, returns=False), name='EaterPool {0}'.format(i))
+                     for i in range(self.n_jobs)]
+        for process in self.processes:
             process.start()
 
-        for item in iterator:
-            self.writeto.put((True, item))
+    def eat(self, item):
+        self.writeto.put((True, item))
 
-        for _ in processes:
+    def close(self):
+        for _ in self.processes:
             self.writeto.put((False,))
         self.writeto.close()
         self.writeto.join_thread()
