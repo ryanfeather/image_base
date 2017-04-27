@@ -108,7 +108,7 @@ def save_data(data, info_string, compress=True):
 
     out_file = os.path.join(out_dir, info_string + '_dat')
     if compress:
-        fp =  gzip.GzipFile(out_file+'.npy.gz', 'w')
+        fp =  gzip.GzipFile(out_file+'.npy.gz', 'w', compresslevel=1)
         np.save(fp, data)
         fp.close()
     else:
