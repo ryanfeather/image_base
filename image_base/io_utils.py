@@ -63,7 +63,7 @@ def k2cv(image, single_dim_im=False):
     return result
 
 
-def get_im_cv2(path, resolution=None, ratio=1,size=None, upscale=True, downscale=True):
+def get_im_cv2(path, resolution=None, ratio=None,size=None, upscale=True, downscale=True):
     """ OpenCV read image with a variety of scaling options
 
     :param path:
@@ -77,7 +77,8 @@ def get_im_cv2(path, resolution=None, ratio=1,size=None, upscale=True, downscale
     img = cv2.imread(path)
     if resolution is not None or size is not None:
         if resolution is not None:
-
+            if ratio is None:
+                ratio = img.shape[1]/resolution[0]
             width = int(resolution*ratio)
             size = (width, resolution)
 
