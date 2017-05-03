@@ -81,8 +81,8 @@ def get_im_cv2(path, resolution=None, ratio=1,size=None, upscale=True, downscale
             width = int(resolution*ratio)
             size = (width, resolution)
 
-        do_resize = (upscale and (size[0] > img.shape[1] or size[1] > img.shape[0]) or
-                     downscale and (size[0] < img.shape[1] or size[1] < img.shape[0]))
+        do_resize = (upscale and (size[0] > img.shape[0] or size[1] > img.shape[1]) or
+                     downscale and (size[0] < img.shape[0] or size[1] < img.shape[1]))
         if do_resize:
             resized = cv2.resize(img, size, cv2.INTER_LINEAR)
             return resized
