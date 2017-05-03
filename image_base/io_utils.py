@@ -63,23 +63,34 @@ def k2cv(image, single_dim_im=False):
     return result
 
 
-def get_im_cv2(path, resolution=None, ratio=1,size=None):
+def get_im_cv2(path, resolution=None, ratio=1,size=None, upscale=True, downscale=True):
+    """ OpenCV read image with a variety of scaling options
+
+    :param path:
+    :param resolution:
+    :param ratio:
+    :param size:
+    :param upscale: increase resolution if needed
+    :param downscale:  decrease resolution if needed
+    :return:
+    """
     img = cv2.imread(path)
     if resolution is not None or size is not None:
         if resolution is not None:
 
             width = int(resolution*ratio)
             size = (width, resolution)
+        do_resize = (upscale and (width > img.size[0] or resolution > img.size[1]) or
+                     downscale and (width < img.size[0] or resolution < img.size[1]))
+        if do_resize:
+            resized = cv2.resize(img, size, cv2.INTER_LINEAR)
+            return resized
+    return img
 
-        resized = cv2.resize(img, size, cv2.INTER_LINEAR)
-        return resized
-    else:
-        return img
 
-
-def load_file(fl, resolution=None, size=None):
+def load_file(fl, resolution=None, size=None, upscale=True, downscale=True):
     flbase = os.path.basename(fl)
-    img = get_im_cv2(fl, resolution=resolution, size=size).astype(np.float32)
+    img = get_im_cv2(fl, resolution=resolution, size=size, upscale=upscale, downscale=downscale).astype(np.float32)
     return img, flbase
 
 
