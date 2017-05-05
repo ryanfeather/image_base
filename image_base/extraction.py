@@ -4,8 +4,11 @@ import numpy as np
 from . import io_utils
 
 
-def extract_patches(img, tilesize, steps_per, return_coords=False):
+def extract_patches(img, tilesize, steps_per, return_coords=False, mask_func=None):
     #ch ro co
+    if mask_func is None:
+        def mask_func(y0,y1,x0,x1):
+            return True
     step_size = int(tilesize/steps_per)
     img_shape = img.shape
     if len(img_shape) == 2:
@@ -28,8 +31,10 @@ def extract_patches(img, tilesize, steps_per, return_coords=False):
         for ind_x in range(len(x_coords) - steps_per):
             x0 = x_coords[ind_x]
             x1 = x_coords[ind_x + steps_per]
-            patches.append(img[:, y0:y1, x0:x1])
-            coords.append((y0,x0))
+            if mask_func(y0,y1,x0,x1):
+                patch = img[:, y0:y1, x0:x1]
+                patches.append(patch)
+                coords.append((y0,x0))
 
     if rows % tilesize > 0:
         y0 = rows - tilesize
@@ -37,8 +42,9 @@ def extract_patches(img, tilesize, steps_per, return_coords=False):
         for ind_x in range(len(x_coords) - steps_per):
             x0 = x_coords[ind_x]
             x1 = x_coords[ind_x + steps_per]
-            patches.append(img[ :, y0:y1, x0:x1])
-            coords.append((y0, x0))
+            if mask_func(y0, y1, x0, x1):
+                patch = img[:, y0:y1, x0:x1]
+                coords.append((y0, x0))
 
     if cols % tilesize > 0:
         x0 = cols - tilesize
@@ -46,8 +52,9 @@ def extract_patches(img, tilesize, steps_per, return_coords=False):
         for ind_y in range(len(y_coords) - steps_per):
             y0 = y_coords[ind_y]
             y1 = y_coords[ind_y + steps_per]
-            patches.append(img[:, y0:y1, x0:x1])
-            coords.append((y0, x0))
+            if mask_func(y0, y1, x0, x1):
+                patch = img[:, y0:y1, x0:x1]
+                coords.append((y0, x0))
 
     patches = [patch.reshape(1,-1,tilesize,tilesize) for patch in patches]
 
@@ -147,7 +154,7 @@ class BlockShapedLocationTransform(object):
         return blockshaped_location_transform(y_vals,n_dim=self.n_dim)
 
 
-def reconstruct_patches(patches, coords, shape, tilesize, flat=False):
+def reconstruct_patches(patches, coords, shape, tilesize, flat=False, return_mask = False):
     if flat:
         if io_utils.BACKEND=='th':
             patches = patches.reshape((-1, 1,tilesize,tilesize))
@@ -174,4 +181,8 @@ def reconstruct_patches(patches, coords, shape, tilesize, flat=False):
             out_count[row_start:row_start + tilesize, col_start:col_start + tilesize, :] += 1
 
 
-    return out/out_count
+    if return_mask:
+
+        return out/out_count, out_count>0
+    else:
+        return out/out_count
