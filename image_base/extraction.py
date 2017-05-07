@@ -155,7 +155,7 @@ class BlockShapedLocationTransform(object):
         return blockshaped_location_transform(y_vals,n_dim=self.n_dim)
 
 
-def reconstruct_patches(patches, coords, shape, tilesize, flat=False, return_mask = False):
+def reconstruct_patches(patches, coords, shape, tilesize, flat=False, return_mask = False, fill=0):
     if flat:
         if io_utils.BACKEND=='th':
             patches = patches.reshape((-1, 1,tilesize,tilesize))
@@ -164,13 +164,13 @@ def reconstruct_patches(patches, coords, shape, tilesize, flat=False, return_mas
 
     if io_utils.BACKEND=='th':
         dim = patches.shape[1]
-        out = np.zeros((dim,)+shape)
+        out = np.ones((dim,)+shape)
         out_count = np.zeros((dim,) +shape)
     else:
         dim = patches.shape[-1]
-        out = np.zeros(shape+ (dim,))
+        out = np.ones(shape+ (dim,))
         out_count = np.zeros(shape+(dim,))
-
+    out *=fill
     row_offset = 0
     for coord, patch in zip(coords, patches):
         row_start, col_start = coord
