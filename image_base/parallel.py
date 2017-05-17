@@ -42,8 +42,8 @@ class Feeder:
         self.n_jobs = n_jobs
 
     def apply(self, iterator):
-        self.readfrom = Queue()
-        self.writeto = Queue()
+        self.readfrom = Queue(maxsize=self.n_jobs)
+        self.writeto = Queue(maxsize=self.n_jobs)
         processes = [Process(target=TargetWrapper(self.worker, self.writeto, self.readfrom), name='FeederPool {0}'.format(i)) for i in range(self.n_jobs)]
         for process in processes:
             process.start()
@@ -82,7 +82,7 @@ class Eater:
         self.n_jobs = n_jobs
         self.max_size = max_size
 
-        self.writeto = Queue()
+        self.writeto = Queue(self.max_size)
         self.processes = [Process(target=TargetWrapper(self.worker, self.writeto, returns=False), name='EaterPool {0}'.format(i))
                      for i in range(self.n_jobs)]
         for process in self.processes:
