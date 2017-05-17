@@ -27,7 +27,8 @@ class TargetWrapper:
                 self.processing = False
 
         self.readfrom.close()
-        self.writeto.close()
+        if self.writeto is not None:
+            self.writeto.close()
 
 
 class Feeder:
