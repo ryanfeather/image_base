@@ -44,6 +44,7 @@ def extract_patches(img, tilesize, steps_per, return_coords=False, mask_func=Non
             x1 = x_coords[ind_x + steps_per]
             if mask_func(y0, y1, x0, x1):
                 patch = img[:, y0:y1, x0:x1]
+                patches.append(patch)
                 coords.append((y0, x0))
 
     if cols % tilesize > 0:
@@ -53,7 +54,9 @@ def extract_patches(img, tilesize, steps_per, return_coords=False, mask_func=Non
             y0 = y_coords[ind_y]
             y1 = y_coords[ind_y + steps_per]
             if mask_func(y0, y1, x0, x1):
+
                 patch = img[:, y0:y1, x0:x1]
+                patches.append(patch)
                 coords.append((y0, x0))
 
     patches = [patch.reshape(1,-1,tilesize,tilesize) for patch in patches]
@@ -165,11 +168,11 @@ def reconstruct_patches(patches, coords, shape, tilesize, flat=False, return_mas
     if io_utils.BACKEND=='th':
         dim = patches.shape[1]
         out = np.ones((dim,)+shape)
-        out_count = np.zeros((dim,) +shape)
+        out_count = np.zeros((dim,) +shape, np.uint8)
     else:
         dim = patches.shape[-1]
         out = np.ones(shape+ (dim,))
-        out_count = np.zeros(shape+(dim,))
+        out_count = np.zeros(shape+(dim,), np.uint8)
     out *=fill
     row_offset = 0
     for coord, patch in zip(coords, patches):
@@ -181,9 +184,10 @@ def reconstruct_patches(patches, coords, shape, tilesize, flat=False, return_mas
             out[row_start:row_start + tilesize, col_start:col_start + tilesize, :] += patch
             out_count[row_start:row_start + tilesize, col_start:col_start + tilesize, :] += 1
 
-
+    normed = out/out_count
+    normed[out_count==0] = fill
     if return_mask:
 
-        return out/out_count, out_count>0
+        return normed, out_count>0
     else:
-        return out/out_count
+        return normed
