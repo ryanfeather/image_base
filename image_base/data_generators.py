@@ -541,3 +541,40 @@ class OmniNumpyArrayIterator(Iterator):
                 for y_i in range(len(y)):
                     result_y[y_i] = self.transforms[y_i](result_y[y_i])
         return result_x,result_y
+
+
+def augmented_predict(model, X, batch_size, n_aug):
+    """ Predict with several image manipulations and then
+
+    :param model: Keras model to predict with
+    :param X:
+    :param batch_size: model predict batch size
+    :param n_aug: number of times to predict and average
+    :return:
+    """
+    aug_generator = XOnlyImageDataGenerator(
+        featurewise_center=False,  # set input mean to 0 over the dataset
+        samplewise_center=False,  # set each sample mean to 0
+        featurewise_std_normalization=False,  # divide inputs by std of the dataset
+        samplewise_std_normalization=False,  # divide each input by its std
+        zca_whitening=False,  # apply ZCA whitening
+        rotation_range=360,  # randomly rotate images in the range (degrees, 0 to 180)
+        width_shift_range=0.1,  # randomly shift images horizontally (fraction of total width)
+        height_shift_range=0.1,  # randomly shift images vertically (fraction of total height)
+        horizontal_flip=True,  # randomly flip images
+        vertical_flip=True,
+        shear_range=0.2,
+        zoom_range=0.1,
+        channel_shift_range=10,  # can't do channel shift on the y
+        dim_ordering='th')
+
+    predictions = None
+    for i in range(n_aug):
+        generator = aug_generator.flow(X, batch_size=int(batch_size*2), shuffle=False)
+        predictions_patch = model.predict_generator(generator, val_samples=len(X))
+        if predictions is None:
+            predictions = predictions_patch
+        else:
+            predictions += predictions_patch
+    predictions /= n_aug
+    return predictions
